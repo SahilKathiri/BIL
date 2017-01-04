@@ -20,6 +20,12 @@ int* ip;
 char inp;
 int index;
 
+mpc_parser_t* Symbol;
+mpc_parser_t* Comment;
+mpc_parser_t* Loop;
+mpc_parser_t* Expr;
+mpc_parser_t* Bf;
+
 void eval_symbol(mpc_ast_t* t) {
 	char* a = t->contents;
 	if(strcmp(a, "+") == 0) { ++*ip; }
@@ -120,52 +126,62 @@ void print_tape() {
 
 int main(int argc, char** argv) {
 
-    mpc_parser_t* Symbol = mpc_new("symbol");
-    mpc_parser_t* Comment = mpc_new("comment");
-    mpc_parser_t* Loop = mpc_new("loop");
-    mpc_parser_t* Expr   = mpc_new("expr");
-    mpc_parser_t* Bf = mpc_new("bf");
+    Symbol = mpc_new("symbol");
+    Comment = mpc_new("comment");
+    Loop = mpc_new("loop");
+    Expr   = mpc_new("expr");
+    Bf = mpc_new("bf");
 
     mpca_lang(MPCA_LANG_DEFAULT,
     "                                 								\
         symbol  :  '+' | '-' | '.' | ',' | '<' | '>' | '+' ;       	\
-        comment  :  /[^\\+-\\.,\\[\\]><]/ ;   								\
+        comment  :  /[^\\+-\\.,\\[\\]><]/ ;   						\
         loop  :  '[' <expr>* ']' ;   								\
-        expr  :  <loop> | <symbol>+ | <comment> ; 		 						\
+        expr  :  <loop> | <symbol>+ | <comment> ; 		 			\
         bf  : /^/ <expr>* /$/ ;       								\
     ",
     Symbol, Comment, Loop, Expr, Bf);
 
-    puts(STYLE_BOLD ANSI_COLOR_BLUE "Fck It! Version 0.0.0.1.0" ANSI_COLOR_RESET);
-    puts("Press " STYLE_BOLD ANSI_COLOR_RED "Ctrl+c" ANSI_COLOR_RESET " to Exit\n");
-
-    /*lval_eval(e, "def {fun} (\\ {args body} {def (head args) (\\ (tail args) body)})");*/
-
     ip = tape;
 
-    while (1) {
+    if (argc == 1) {
+	    puts(STYLE_BOLD ANSI_COLOR_BLUE "Fck It! Version 0.0.0.1.0" ANSI_COLOR_RESET);
+	    puts("Press " STYLE_BOLD ANSI_COLOR_RED "Ctrl+c" ANSI_COLOR_RESET " to Exit\n");
+	    while (1) {
 
-        char* input = readline("fck> ");
-        add_history(input);
+	        char* input = readline("fck> ");
+	        add_history(input);
 
-        mpc_result_t r;
-        if (mpc_parse("<stdin>", input, Bf, &r)) {
-            // mpc_ast_print(r.output);
-            read_bf(r.output);
-            putchar('\n');
-            // index = ip - tape;
-            // printf("%d\n", index);
-            print_tape();
-            mpc_ast_delete(r.output);
-        } else {    
-            mpc_err_print(r.error);
-            mpc_err_delete(r.error);
-        }
+	        mpc_result_t r;
+	        if (mpc_parse("<stdin>", input, Bf, &r)) {
+	            read_bf(r.output);
+	            putchar('\n');
+	            print_tape();
+	            mpc_ast_delete(r.output);
+	        } else {    
+	            mpc_err_print(r.error);
+	            mpc_err_delete(r.error);
+	        }
 
-        free(input);
+	        free(input);
 
+	    }
     }
-    
+
+    if (argc >= 2) {
+    	for (int i = 1; i < argc; ++i) {
+    		mpc_result_t r;
+    		if (mpc_parse_contents(argv[i], Bf, &r)) {
+    			read_bf(r.output);
+				putchar('\n');
+	            print_tape();
+	            mpc_ast_delete(r.output);
+    		} else {    
+	            mpc_err_print(r.error);
+	            mpc_err_delete(r.error);
+	        }
+    	}
+    }
 
     mpc_cleanup(5, Symbol, Comment, Loop, Expr, Bf);
 
