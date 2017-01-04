@@ -72,6 +72,7 @@ void read_bf(mpc_ast_t* t) {
 		if (strcmp(t->children[i]->contents, "[") == 0) { continue; }
 		if (strcmp(t->children[i]->contents, "]") == 0) { continue; }
 		if(strcmp(t->children[i]->tag, "regex") == 0) { continue; }
+		if(strstr(t->children[i]->tag, "comment")) { continue; }
 
 		read_bf(t->children[i]);
 
@@ -120,6 +121,7 @@ void print_tape() {
 int main(int argc, char** argv) {
 
     mpc_parser_t* Symbol = mpc_new("symbol");
+    mpc_parser_t* Comment = mpc_new("comment");
     mpc_parser_t* Loop = mpc_new("loop");
     mpc_parser_t* Expr   = mpc_new("expr");
     mpc_parser_t* Bf = mpc_new("bf");
@@ -127,11 +129,12 @@ int main(int argc, char** argv) {
     mpca_lang(MPCA_LANG_DEFAULT,
     "                                 								\
         symbol  :  '+' | '-' | '.' | ',' | '<' | '>' | '+' ;       	\
+        comment  :  /[^\\+-\\.,\\[\\]><]/ ;   								\
         loop  :  '[' <expr>* ']' ;   								\
-        expr  :  <loop> | <symbol>+ ; 		 						\
+        expr  :  <loop> | <symbol>+ | <comment> ; 		 						\
         bf  : /^/ <expr>* /$/ ;       								\
     ",
-    Symbol, Loop, Expr, Bf);
+    Symbol, Comment, Loop, Expr, Bf);
 
     puts(STYLE_BOLD ANSI_COLOR_BLUE "Fck It! Version 0.0.0.1.0" ANSI_COLOR_RESET);
     puts("Press " STYLE_BOLD ANSI_COLOR_RED "Ctrl+c" ANSI_COLOR_RESET " to Exit\n");
@@ -164,7 +167,7 @@ int main(int argc, char** argv) {
     }
     
 
-    mpc_cleanup(4, Symbol, Loop, Expr, Bf);
+    mpc_cleanup(5, Symbol, Comment, Loop, Expr, Bf);
 
     return 0;
 }
