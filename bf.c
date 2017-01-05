@@ -55,15 +55,14 @@ void eval_loop(mpc_ast_t* t) {
 			}
 		}
 		else if (strcmp(t->children[i]->contents, "[") == 0) { 
-			if (*ip != 0)
-				continue; 
-			else 
+			if (*ip == 0)
 				break;
 		}
 		else if (strcmp(t->children[i]->contents, "]") == 0) { 
 			i = -1; 
 		}
 	}
+	// mpc_ast_print(t);
 }
 
 void read_bf(mpc_ast_t* t) {
