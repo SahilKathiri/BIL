@@ -90,7 +90,7 @@ void print_tape() {
 	int end = start + (10 - 1);
 	int _index = index % 10;
 
-	printf("\n----------------------------------------------------\n");
+	printf("\n----------------------------------------------------------------------------------\n");
 
 	printf("\n" STYLE_BOLD "Start" ANSI_COLOR_RESET " = %d\n", start);
 	printf(STYLE_BOLD "End" ANSI_COLOR_RESET "   = %d\n", end);
@@ -98,29 +98,29 @@ void print_tape() {
 
 	printf("\n+");
 	for (int i = start; i <= end; ++i) {
-		printf("-----+");
+		printf("-------+");
 	}
 	printf("\n|");
 	for (int i = start; i <= end; ++i) {
 		if ((i-start) == _index)
-			printf(STYLE_BOLD ANSI_COLOR_GREEN " %03d" ANSI_COLOR_RESET " |", tape[i]);
+			printf(STYLE_BOLD ANSI_COLOR_GREEN " %05d" ANSI_COLOR_RESET " |", tape[i]);
 		else
-			printf(" %03d |", tape[i]);
+			printf(" %05d |", tape[i]);
 	}
 	printf("\n+");
 	for (int i = start; i <= end; ++i) {
-		printf("-----+");
+		printf("-------+");
 	}
 	printf("\n");
 	for (int i = 0; i < _index; ++i) {
-		printf("      ");
+		printf("        ");
 	}
-	printf(STYLE_BOLD ANSI_COLOR_GREEN "   ^" ANSI_COLOR_RESET);
+	printf(STYLE_BOLD ANSI_COLOR_GREEN "    ^" ANSI_COLOR_RESET);
 	printf("\n");
 	for (int i = 0; i < _index; ++i) {
-		printf("      ");
+		printf("        ");
 	}
-	printf(STYLE_BOLD ANSI_COLOR_GREEN " %3d\n\n" ANSI_COLOR_RESET, index);
+	printf(STYLE_BOLD ANSI_COLOR_GREEN " %5d\n\n" ANSI_COLOR_RESET, index);
 }
 
 int main(int argc, char** argv) {
