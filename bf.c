@@ -15,8 +15,8 @@
 #define ANSI_COLOR_CYAN    "\x1b[36m"
 #define ANSI_COLOR_RESET   "\x1b[0m"
 
-int tape[1024];
-int* ip;
+char tape[33000];
+char* ip;
 char inp;
 int index;
 
@@ -26,8 +26,8 @@ mpc_parser_t* Loop;
 mpc_parser_t* Expr;
 mpc_parser_t* Bf;
 
-void eval_symbol(mpc_ast_t* t) {
-	char* a = t->contents;
+void eval_symbol(char* a) {
+	// char* a = t->contents;
 	if(strcmp(a, "+") == 0) { ++*ip; }
 	if(strcmp(a, "-") == 0) { --*ip; }
 	if(strcmp(a, ">") == 0) { ip++; }
@@ -50,9 +50,13 @@ void eval_loop(mpc_ast_t* t) {
 			eval_loop(t->children[i]);
 		}
 		else if (strstr(t->children[i]->tag, "expr")) {
-			for (int j = 0; j < t->children[i]->children_num; ++j) {
-				eval_symbol(t->children[i]->children[j]);
-			}
+			if (t->children[i]->children_num == 0) /* Single char expression*/
+				eval_symbol(t->children[i]->contents);
+
+			else
+				for (int j = 0; j < t->children[i]->children_num; ++j) {
+					eval_symbol(t->children[i]->children[j]->contents);
+				}
 		}
 		else if (strcmp(t->children[i]->contents, "[") == 0) { 
 			if (*ip == 0)
@@ -67,7 +71,7 @@ void eval_loop(mpc_ast_t* t) {
 
 void read_bf(mpc_ast_t* t) {
 	if (strstr(t->tag, "symbol")) { 
-		return eval_symbol(t); 
+		return eval_symbol(t->contents); 
 	}
 	if (strstr(t->tag, "loop")) {
 		return eval_loop(t);
