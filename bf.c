@@ -138,7 +138,7 @@ int main(int argc, char** argv) {
     mpca_lang(MPCA_LANG_DEFAULT,
     "                                 								\
         symbol  :  '+' | '-' | '.' | ',' | '<' | '>' | '+' ;       	\
-        comment  :  /[^\\+-\\.,\\[\\]><]/ ;   						\
+        comment  :  /[^\\+\\-\\.,\\[\\]><]/ ;   						\
         loop  :  '[' <expr>* ']' ;   								\
         expr  :  <loop> | <symbol>+ | <comment> ; 		 			\
         bf  : /^/ <expr>* /$/ ;       								\
