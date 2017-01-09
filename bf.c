@@ -1,8 +1,11 @@
 #include "inc/mpc.h"
 
-#include <stdio.h>
-#include <editline/readline.h>
 #include <editline/history.h>
+#include <editline/readline.h>
+#include <stdio.h>
+#include <stdio.h>
+#include <sys/ioctl.h>
+#include <unistd.h>
 
 #define STYLE_BOLD         "\033[1m"
 #define STYLE_UNDERLINE    "\033[4m"
@@ -18,6 +21,8 @@
 char tape[33000];
 char* ip;
 char inp;
+
+
 
 mpc_parser_t* Symbol;
 mpc_parser_t* Comment;
@@ -152,6 +157,126 @@ void command_dec(char* value) {
 	}
 }
 
+// 00000   111 222 333 444  555 666 777 888   .... ....
+void dump_row(int row) {
+	int start = row * 8;
+
+	if (row == (ip - tape)/8)
+		printf(STYLE_BOLD ANSI_COLOR_GREEN "%5d   " ANSI_COLOR_RESET, start);
+	else
+		printf("%5d   ", start);
+
+	for (int i = 0; i < 8; ++i) {
+		if ((start + i) == (ip - tape))
+			printf(STYLE_BOLD ANSI_COLOR_GREEN " %3d " ANSI_COLOR_RESET, *(tape + start + i));
+		else
+			printf(" %3d ", *(tape + start + i));
+	}
+
+	printf("   ");
+
+	for (int i = 0; i < 8; ++i) {
+		if ((start + i) == (ip - tape))
+			printf(STYLE_BOLD ANSI_COLOR_GREEN);
+
+		if (*(tape + start + i) == 0) {
+			printf(". ");
+		} else {
+			printf("%c ", *(tape + start + i));
+		}
+
+		printf(ANSI_COLOR_RESET);
+	}
+
+	printf("\n");
+
+}
+
+void command_dump(char* value) {
+	errno = 0;
+	if (strcmp(value, "ip") == 0) {
+		if ((ip - tape) < 40) {
+			int count = ((ip - tape)/8) + 5;
+
+			for (int i = 0; i < count; ++i) {
+				dump_row(i);
+			}
+		} else {
+			int start_row = (ip - tape - 40)/8;
+			int end_row = (ip - tape + 48)/8;
+			int count = end_row - start_row;
+			for (int i = start_row; i < start_row + count; ++i) {
+				dump_row(i);
+			}
+		}
+	} else {
+		long count = strtol(value, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		for (int i = 0; i < count; ++i) {
+			dump_row(i);
+		}
+	}
+}
+
+void dump_row_hex(int row) {
+	int start = row * 8;
+
+	if (row == (ip - tape)/8)
+		printf(STYLE_BOLD ANSI_COLOR_GREEN "%5d   " ANSI_COLOR_RESET, start);
+	else
+		printf("%5x   ", start);
+
+	for (int i = 0; i < 8; ++i) {
+		if ((start + i) == (ip - tape))
+			printf(STYLE_BOLD ANSI_COLOR_GREEN " %3x " ANSI_COLOR_RESET, *(tape + start + i));
+		else
+			printf(" %3x ", *(tape + start + i));
+	}
+
+	printf("   ");
+
+	for (int i = 0; i < 8; ++i) {
+		if ((start + i) == (ip - tape))
+			printf(STYLE_BOLD ANSI_COLOR_GREEN);
+
+		if (*(tape + start + i) == 0) {
+			printf(". ");
+		} else {
+			printf("%c ", *(tape + start + i));
+		}
+
+		printf(ANSI_COLOR_RESET);
+	}
+
+	printf("\n");
+
+}
+
+void command_dump_hex(char* value) {
+	errno = 0;
+	if (strcmp(value, "ip") == 0) {
+		if ((ip - tape) < 40) {
+			int count = ((ip - tape)/8) + 5;
+
+			for (int i = 0; i < count; ++i) {
+				dump_row_hex(i);
+			}
+		} else {
+			int start_row = (ip - tape - 40)/8;
+			int end_row = (ip - tape + 48)/8;
+			int count = end_row - start_row;
+			for (int i = start_row; i < start_row + count; ++i) {
+				dump_row_hex(i);
+			}
+		}
+	} else {
+		long count = strtol(value, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		for (int i = 0; i < count; ++i) {
+			dump_row_hex(i);
+		}
+	}
+}
 
 void eval_command(mpc_ast_t* t) {
 
@@ -185,6 +310,8 @@ void eval_command(mpc_ast_t* t) {
 	if (strcmp(command_name, "%%peekh") == 0) { command_peekh(arg); }
 	if (strcmp(command_name, "%%inc") == 0) { command_inc(arg); }
 	if (strcmp(command_name, "%%dec") == 0) { command_dec(arg); }
+	if (strcmp(command_name, "%%dump") == 0) { command_dump(arg); }
+	if (strcmp(command_name, "%%dumph") == 0) { command_dump_hex(arg); }
 
 }
 
@@ -215,8 +342,14 @@ void print_tape(int index) {
 	int start = (index/10) * 10;
 	int end = start + (10 - 1);
 	int _index = index % 10;
+	struct winsize w;
+    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-	printf("\n----------------------------------------------------------------------------------\n");
+	printf("\n");
+	for (int i = 0; i < w.ws_col; ++i) {
+		printf("-");
+	}
+	printf("\n");
 
 	printf("\n" STYLE_BOLD "Start" ANSI_COLOR_RESET " = %d\n", start);
 	printf(STYLE_BOLD "End" ANSI_COLOR_RESET "   = %d\n", end);
@@ -262,16 +395,16 @@ int main(int argc, char** argv) {
     Bf = mpc_new("bf");
 
     mpca_lang(MPCA_LANG_DEFAULT,
-    "                                 								\
-        symbol  :  '+' | '-' | '.' | ',' | '<' | '>' | '+' ;       	\
-        comment  :  /[^\\+\\-\\.,\\[\\]><%%]/ ;   					\
-        loop  :  '[' <expr>* ']' ;   								\
-        number  :  /[0-9ip]+/ ;   									\
-        inval_command_arg  :  /[^0-9ip]+/ ;   							\
-        command_name  :  /%%[a-z]+/ ;   							\
+    "                                 																	\
+        symbol  :  '+' | '-' | '.' | ',' | '<' | '>' | '+' ;       										\
+        comment  :  /[^\\+\\-\\.,\\[\\]><%%]/ ;   														\
+        loop  :  '[' <expr>* ']' ;   																	\
+        number  :  /[0-9ip]+/ ;   																		\
+        inval_command_arg  :  /[^0-9ip]+/ ;   															\
+        command_name  :  /%%[a-z]+/ ;   																\
         command  :  <command_name> <number> | <command_name> <inval_command_arg> | <command_name> ;		\
-        expr  :  <loop> | <symbol>+ | <comment> ; 		 			\
-        bf  : /^/ <expr>* /$/  | <command> ;       					\
+        expr  :  <loop> | <symbol>+ | <comment> ; 		 												\
+        bf  : /^/ <expr>* /$/  | <command> ;       														\
     ",
     Symbol, Comment, Loop, Number, InvalidCommandArg, CommandName, Command, Expr, Bf);
 
@@ -315,6 +448,6 @@ int main(int argc, char** argv) {
     }
 
     mpc_cleanup(8, Symbol, Comment, Loop, Number, InvalidCommandArg, CommandName, Command, Expr, Bf);
-
+    free(ip);
     return 0;
 }
