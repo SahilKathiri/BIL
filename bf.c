@@ -18,7 +18,6 @@
 char tape[33000];
 char* ip;
 char inp;
-int index;
 
 mpc_parser_t* Symbol;
 mpc_parser_t* Comment;
