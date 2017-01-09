@@ -232,7 +232,7 @@ void print_tape(int index) {
 	}
 	printf("\n|");
 	for (int i = start; i <= end; ++i) {
-		if ((i+start) == (ip - tape))
+		if ((i) == (ip - tape))
 			printf(STYLE_BOLD ANSI_COLOR_GREEN " %03d" ANSI_COLOR_RESET " |", tape[i]);
 		else
 			printf(" %03d |", tape[i]);
