@@ -25,6 +25,10 @@ mpc_parser_t* Comment;
 mpc_parser_t* Loop;
 mpc_parser_t* Expr;
 mpc_parser_t* Bf;
+mpc_parser_t* Number;
+mpc_parser_t* Command;
+mpc_parser_t* CommandName;
+mpc_parser_t* InvalidCommandArg;
 
 void eval_symbol(char* a) {
 	// char* a = t->contents;
@@ -69,12 +73,58 @@ void eval_loop(mpc_ast_t* t) {
 	// mpc_ast_print(t);
 }
 
+void print_tape(int index);
+void command_print(char* index) {
+	errno = 0;
+	long i = strtol(index, NULL, 10);
+	errno != ERANGE ? print_tape(i) : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+}
+
+void command_help() {
+	printf("HELPtext goes here\n\n\n\nsadsadas\n\n\n\n");
+}
+
+void eval_command(mpc_ast_t* t) {
+	// mpc_ast_print(t);
+
+	char* arg;
+	char* command_name;
+
+	for (int i = 0; i < t->children_num; i++) {
+		if (strstr(t->children[i]->tag, "inval_command_arg")) {
+			printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Arguments\n" ANSI_COLOR_RESET);
+			return;
+		}
+	}
+
+	if (t->children_num == 0) {
+		command_name = t->contents;
+		arg = "ip";
+	}
+	else if (t->children_num == 2) {
+		command_name = t->children[0]->contents;
+		arg = t->children[1]->contents;		
+	}
+	else {
+		printf(STYLE_BOLD ANSI_COLOR_RED "Error: Too many arguments\n" ANSI_COLOR_RESET);
+	}
+
+	if (strcmp(command_name, "%%help") == 0) { command_help(); }
+	if (strcmp(command_name, "%%print") == 0) { command_print(arg); }
+
+
+}
+
 void read_bf(mpc_ast_t* t) {
 	if (strstr(t->tag, "symbol")) { 
 		return eval_symbol(t->contents); 
 	}
 	if (strstr(t->tag, "loop")) {
 		return eval_loop(t);
+	}
+
+	if (strstr(t->tag, "command")) {
+		return eval_command(t);
 	}
 	
 	for (int i = 0; i < t->children_num; ++i) {
@@ -88,8 +138,7 @@ void read_bf(mpc_ast_t* t) {
 	}
 }
 
-void print_tape() {
-	index = ip - tape;
+void print_tape(int index) {
 	int start = (index/10) * 10;
 	int end = start + (10 - 1);
 	int _index = index % 10;
@@ -102,29 +151,29 @@ void print_tape() {
 
 	printf("\n+");
 	for (int i = start; i <= end; ++i) {
-		printf("-------+");
+		printf("-----+");
 	}
 	printf("\n|");
 	for (int i = start; i <= end; ++i) {
-		if ((i-start) == _index)
-			printf(STYLE_BOLD ANSI_COLOR_GREEN " %05d" ANSI_COLOR_RESET " |", tape[i]);
+		if ((i-start) == (ip - tape))
+			printf(STYLE_BOLD ANSI_COLOR_GREEN " %03d" ANSI_COLOR_RESET " |", tape[i]);
 		else
 			printf(" %05d |", tape[i]);
 	}
 	printf("\n+");
 	for (int i = start; i <= end; ++i) {
-		printf("-------+");
+		printf("-----+");
 	}
 	printf("\n");
 	for (int i = 0; i < _index; ++i) {
-		printf("        ");
+		printf("      ");
 	}
-	printf(STYLE_BOLD ANSI_COLOR_GREEN "    ^" ANSI_COLOR_RESET);
+	printf(STYLE_BOLD ANSI_COLOR_BLUE " ^" ANSI_COLOR_RESET);
 	printf("\n");
 	for (int i = 0; i < _index; ++i) {
-		printf("        ");
+		printf("      ");
 	}
-	printf(STYLE_BOLD ANSI_COLOR_GREEN " %5d\n\n" ANSI_COLOR_RESET, index);
+	printf(STYLE_BOLD ANSI_COLOR_BLUE " %3d\n\n" ANSI_COLOR_RESET, index);
 }
 
 int main(int argc, char** argv) {
@@ -132,18 +181,26 @@ int main(int argc, char** argv) {
     Symbol = mpc_new("symbol");
     Comment = mpc_new("comment");
     Loop = mpc_new("loop");
+    Number = mpc_new("number");
+    InvalidCommandArg = mpc_new("inval_command_arg");
+    CommandName = mpc_new("command_name");
+    Command = mpc_new("command");
     Expr   = mpc_new("expr");
     Bf = mpc_new("bf");
 
     mpca_lang(MPCA_LANG_DEFAULT,
     "                                 								\
         symbol  :  '+' | '-' | '.' | ',' | '<' | '>' | '+' ;       	\
-        comment  :  /[^\\+\\-\\.,\\[\\]><]/ ;   						\
+        comment  :  /[^\\+\\-\\.,\\[\\]><%%]/ ;   					\
         loop  :  '[' <expr>* ']' ;   								\
+        number  :  /[0-9ip]+/ ;   									\
+        inval_command_arg  :  /[^0-9ip]+/ ;   							\
+        command_name  :  /%%[a-z]+/ ;   							\
+        command  :  <command_name> <number> | <command_name> <inval_command_arg> | <command_name> ;		\
         expr  :  <loop> | <symbol>+ | <comment> ; 		 			\
-        bf  : /^/ <expr>* /$/ ;       								\
+        bf  : /^/ <expr>* /$/  | <command> ;       					\
     ",
-    Symbol, Comment, Loop, Expr, Bf);
+    Symbol, Comment, Loop, Number, InvalidCommandArg, CommandName, Command, Expr, Bf);
 
     ip = tape;
 
@@ -158,8 +215,9 @@ int main(int argc, char** argv) {
 	        mpc_result_t r;
 	        if (mpc_parse("<stdin>", input, Bf, &r)) {
 	            read_bf(r.output);
-	            putchar('\n');
-	            print_tape();
+	            // putchar('\n');
+	            // print_tape();
+	            // mpc_ast_print(r.output);
 	            mpc_ast_delete(r.output);
 	        } else {    
 	            mpc_err_print(r.error);
@@ -177,7 +235,7 @@ int main(int argc, char** argv) {
     		if (mpc_parse_contents(argv[i], Bf, &r)) {
     			read_bf(r.output);
 				putchar('\n');
-	            print_tape();
+	            print_tape(ip - tape);
 	            mpc_ast_delete(r.output);
     		} else {    
 	            mpc_err_print(r.error);
@@ -186,7 +244,7 @@ int main(int argc, char** argv) {
     	}
     }
 
-    mpc_cleanup(5, Symbol, Comment, Loop, Expr, Bf);
+    mpc_cleanup(8, Symbol, Comment, Loop, Number, InvalidCommandArg, CommandName, Command, Expr, Bf);
 
     return 0;
 }
