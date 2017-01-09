@@ -31,7 +31,6 @@ mpc_parser_t* CommandName;
 mpc_parser_t* InvalidCommandArg;
 
 void eval_symbol(char* a) {
-	// char* a = t->contents;
 	if(strcmp(a, "+") == 0) { ++*ip; }
 	if(strcmp(a, "-") == 0) { --*ip; }
 	if(strcmp(a, ">") == 0) { ip++; }
@@ -54,7 +53,7 @@ void eval_loop(mpc_ast_t* t) {
 			eval_loop(t->children[i]);
 		}
 		else if (strstr(t->children[i]->tag, "expr")) {
-			if (t->children[i]->children_num == 0) /* Single char expression*/
+			if (t->children[i]->children_num == 0)
 				eval_symbol(t->children[i]->contents);
 
 			else
@@ -70,7 +69,6 @@ void eval_loop(mpc_ast_t* t) {
 			i = -1; 
 		}
 	}
-	// mpc_ast_print(t);
 }
 
 void print_tape(int index);
@@ -157,7 +155,6 @@ void command_dec(char* value) {
 
 
 void eval_command(mpc_ast_t* t) {
-	// mpc_ast_print(t);
 
 	char* arg;
 	char* command_name;
@@ -292,9 +289,6 @@ int main(int argc, char** argv) {
 	        mpc_result_t r;
 	        if (mpc_parse("<stdin>", input, Bf, &r)) {
 	            read_bf(r.output);
-	            // putchar('\n');
-	            // print_tape();
-	            // mpc_ast_print(r.output);
 	            mpc_ast_delete(r.output);
 	        } else {    
 	            mpc_err_print(r.error);
