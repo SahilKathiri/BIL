@@ -76,13 +76,85 @@ void eval_loop(mpc_ast_t* t) {
 void print_tape(int index);
 void command_print(char* index) {
 	errno = 0;
-	long i = strtol(index, NULL, 10);
-	errno != ERANGE ? print_tape(i) : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+	if (strcmp(index, "ip") == 0) {
+		print_tape(ip - tape);
+	} else {
+		long i = strtol(index, NULL, 10);
+		errno != ERANGE ? print_tape(i) : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+	}
 }
 
 void command_help() {
 	printf("HELPtext goes here\n\n\n\nsadsadas\n\n\n\n");
 }
+
+void command_seek(char* index) {
+	errno = 0;
+	if (strcmp(index, "ip") == 0) {
+		printf(STYLE_BOLD ANSI_COLOR_YELLOW "Value not supplied. Operation not done.\n" ANSI_COLOR_RESET);
+	} else {
+		long i = strtol(index, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+
+		ip = tape + i;
+	}
+}
+
+void command_peek(char* index) {
+	errno = 0;
+	if (strcmp(index, "ip") == 0) {
+		printf(STYLE_BOLD ANSI_COLOR_YELLOW "Value not supplied. Operation not done.\n" ANSI_COLOR_RESET);
+	} else {
+		long i = strtol(index, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		printf("%c\n", *(tape+i));
+	}
+}
+
+void command_peekd(char* index) {
+	errno = 0;
+	if (strcmp(index, "ip") == 0) {
+		printf(STYLE_BOLD ANSI_COLOR_YELLOW "Value not supplied. Operation not done.\n" ANSI_COLOR_RESET);
+	} else {
+		long i = strtol(index, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		printf("%d\n", *(tape+i));
+	}
+}
+
+void command_peekh(char* index) {
+	errno = 0;
+	if (strcmp(index, "ip") == 0) {
+		printf(STYLE_BOLD ANSI_COLOR_YELLOW "Value not supplied. Operation not done.\n" ANSI_COLOR_RESET);
+	} else {
+		long i = strtol(index, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		printf("%#x\n", *(tape+i));
+	}
+}
+
+void command_inc(char* value) {
+	errno = 0;
+	if (strcmp(value, "ip") == 0) {
+		printf(STYLE_BOLD ANSI_COLOR_YELLOW "Value not supplied. Operation not done.\n" ANSI_COLOR_RESET);
+	} else {
+		long val = strtol(value, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		*ip += val;
+	}
+}
+
+void command_dec(char* value) {
+	errno = 0;
+	if (strcmp(value, "ip") == 0) {
+		printf(STYLE_BOLD ANSI_COLOR_YELLOW "Value not supplied. Operation not done.\n" ANSI_COLOR_RESET);
+	} else {
+		long val = strtol(value, NULL, 10);
+		(errno != ERANGE) ? 1 : printf(STYLE_BOLD ANSI_COLOR_RED "Invalid Number\n" ANSI_COLOR_RESET);
+		*ip -= val;
+	}
+}
+
 
 void eval_command(mpc_ast_t* t) {
 	// mpc_ast_print(t);
@@ -111,7 +183,12 @@ void eval_command(mpc_ast_t* t) {
 
 	if (strcmp(command_name, "%%help") == 0) { command_help(); }
 	if (strcmp(command_name, "%%print") == 0) { command_print(arg); }
-
+	if (strcmp(command_name, "%%seek") == 0) { command_seek(arg); }
+	if (strcmp(command_name, "%%peek") == 0) { command_peek(arg); }
+	if (strcmp(command_name, "%%peekd") == 0) { command_peekd(arg); }
+	if (strcmp(command_name, "%%peekh") == 0) { command_peekh(arg); }
+	if (strcmp(command_name, "%%inc") == 0) { command_inc(arg); }
+	if (strcmp(command_name, "%%dec") == 0) { command_dec(arg); }
 
 }
 
@@ -155,10 +232,10 @@ void print_tape(int index) {
 	}
 	printf("\n|");
 	for (int i = start; i <= end; ++i) {
-		if ((i-start) == (ip - tape))
+		if ((i+start) == (ip - tape))
 			printf(STYLE_BOLD ANSI_COLOR_GREEN " %03d" ANSI_COLOR_RESET " |", tape[i]);
 		else
-			printf(" %05d |", tape[i]);
+			printf(" %03d |", tape[i]);
 	}
 	printf("\n+");
 	for (int i = start; i <= end; ++i) {
@@ -168,7 +245,7 @@ void print_tape(int index) {
 	for (int i = 0; i < _index; ++i) {
 		printf("      ");
 	}
-	printf(STYLE_BOLD ANSI_COLOR_BLUE " ^" ANSI_COLOR_RESET);
+	printf(STYLE_BOLD ANSI_COLOR_BLUE "   ^" ANSI_COLOR_RESET);
 	printf("\n");
 	for (int i = 0; i < _index; ++i) {
 		printf("      ");
