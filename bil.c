@@ -7,22 +7,21 @@
 #include <sys/ioctl.h>
 #include <unistd.h>
 
+
+#define ANSI_COLOR_BLUE    "\x1b[34m"
+#define ANSI_COLOR_CYAN    "\x1b[36m"
+#define ANSI_COLOR_GREEN   "\x1b[32m"
+#define ANSI_COLOR_MAGENTA "\x1b[35m"
+#define ANSI_COLOR_RED     "\x1b[31m"
+#define ANSI_COLOR_RESET   "\x1b[0m"
+#define ANSI_COLOR_YELLOW  "\x1b[33m"
+
 #define STYLE_BOLD         "\033[1m"
 #define STYLE_UNDERLINE    "\033[4m"
-
-#define ANSI_COLOR_RED     "\x1b[31m"
-#define ANSI_COLOR_GREEN   "\x1b[32m"
-#define ANSI_COLOR_YELLOW  "\x1b[33m"
-#define ANSI_COLOR_BLUE    "\x1b[34m"
-#define ANSI_COLOR_MAGENTA "\x1b[35m"
-#define ANSI_COLOR_CYAN    "\x1b[36m"
-#define ANSI_COLOR_RESET   "\x1b[0m"
 
 char tape[33000];
 char* ip;
 char inp;
-
-
 
 mpc_parser_t* Symbol;
 mpc_parser_t* Comment;
@@ -195,7 +194,6 @@ void dump_row(int row) {
 	}
 
 	printf("\n");
-
 }
 
 void command_dump(char* value) {
@@ -261,7 +259,6 @@ void dump_row_hex(int row) {
 	}
 
 	printf("\n");
-
 }
 
 void command_dump_hex(char* value) {
@@ -314,17 +311,16 @@ void eval_command(mpc_ast_t* t) {
 		printf(STYLE_BOLD ANSI_COLOR_RED "Error: Too many arguments\n" ANSI_COLOR_RESET);
 	}
 
-	if ((strcmp(command_name, "%%help") == 0) || (strcmp(command_name, "%%h") == 0)) { command_help(); }
-	if ((strcmp(command_name, "%%print") == 0) || (strcmp(command_name, "%%p") == 0)) { command_print(arg); }
-	if ((strcmp(command_name, "%%seek") == 0) || (strcmp(command_name, "%%s") == 0)) { command_seek(arg); }
-	if ((strcmp(command_name, "%%peek") == 0) || (strcmp(command_name, "%%pk") == 0)) { command_peek(arg); }
+	if ((strcmp(command_name, "%%help") == 0)  || (strcmp(command_name, "%%h") == 0))  { command_help(); }
+	if ((strcmp(command_name, "%%print") == 0) || (strcmp(command_name, "%%p") == 0))  { command_print(arg); }
+	if ((strcmp(command_name, "%%seek") == 0)  || (strcmp(command_name, "%%s") == 0))  { command_seek(arg); }
+	if ((strcmp(command_name, "%%peek") == 0)  || (strcmp(command_name, "%%pk") == 0)) { command_peek(arg); }
 	if ((strcmp(command_name, "%%peekd") == 0) || (strcmp(command_name, "%%pd") == 0)) { command_peekd(arg); }
 	if ((strcmp(command_name, "%%peekh") == 0) || (strcmp(command_name, "%%ph") == 0)) { command_peekh(arg); }
-	if ((strcmp(command_name, "%%inc") == 0) || (strcmp(command_name, "%%i") == 0)) { command_inc(arg); }
-	if ((strcmp(command_name, "%%dec") == 0) || (strcmp(command_name, "%%d") == 0)) { command_dec(arg); }
-	if ((strcmp(command_name, "%%dump") == 0) || (strcmp(command_name, "%%dd") == 0)) { command_dump(arg); }
+	if ((strcmp(command_name, "%%inc") == 0)   || (strcmp(command_name, "%%i") == 0))  { command_inc(arg); }
+	if ((strcmp(command_name, "%%dec") == 0)   || (strcmp(command_name, "%%d") == 0))  { command_dec(arg); }
+	if ((strcmp(command_name, "%%dump") == 0)  || (strcmp(command_name, "%%dd") == 0)) { command_dump(arg); }
 	if ((strcmp(command_name, "%%dumph") == 0) || (strcmp(command_name, "%%dh") == 0)) { command_dump_hex(arg); }
-
 }
 
 void read_bf(mpc_ast_t* t) {
