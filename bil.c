@@ -171,6 +171,9 @@ void dump_row(int row) {
 			printf(STYLE_BOLD ANSI_COLOR_GREEN " %3d " ANSI_COLOR_RESET, *(tape + start + i));
 		else
 			printf(" %3d ", *(tape + start + i));
+
+		if (i == 3)
+			printf("  ");
 	}
 
 	printf("   ");
@@ -186,6 +189,9 @@ void dump_row(int row) {
 		}
 
 		printf(ANSI_COLOR_RESET);
+
+		if (i == 3)
+			printf("  ");
 	}
 
 	printf("\n");
@@ -231,6 +237,9 @@ void dump_row_hex(int row) {
 			printf(STYLE_BOLD ANSI_COLOR_GREEN " %3x " ANSI_COLOR_RESET, *(tape + start + i));
 		else
 			printf(" %3x ", *(tape + start + i));
+
+		if (i == 3)
+			printf("  ");
 	}
 
 	printf("   ");
@@ -246,6 +255,9 @@ void dump_row_hex(int row) {
 		}
 
 		printf(ANSI_COLOR_RESET);
+
+		if (i == 3)
+			printf("  ");
 	}
 
 	printf("\n");
@@ -411,11 +423,11 @@ int main(int argc, char** argv) {
     ip = tape;
 
     if (argc == 1) {
-	    puts(STYLE_BOLD ANSI_COLOR_BLUE "Fck It! Version 0.0.0.1.0" ANSI_COLOR_RESET);
+	    puts(STYLE_BOLD ANSI_COLOR_BLUE "BIL! Version 0.0.0.1.0" ANSI_COLOR_RESET);
 	    puts("Press " STYLE_BOLD ANSI_COLOR_RED "Ctrl+c" ANSI_COLOR_RESET " to Exit\n");
 	    while (1) {
 
-	        char* input = readline("fck> ");
+	        char* input = readline("bil> ");
 	        add_history(input);
 
 	        mpc_result_t r;
