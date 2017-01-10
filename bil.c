@@ -314,16 +314,16 @@ void eval_command(mpc_ast_t* t) {
 		printf(STYLE_BOLD ANSI_COLOR_RED "Error: Too many arguments\n" ANSI_COLOR_RESET);
 	}
 
-	if (strcmp(command_name, "%%help") == 0) { command_help(); }
-	if (strcmp(command_name, "%%print") == 0) { command_print(arg); }
-	if (strcmp(command_name, "%%seek") == 0) { command_seek(arg); }
-	if (strcmp(command_name, "%%peek") == 0) { command_peek(arg); }
-	if (strcmp(command_name, "%%peekd") == 0) { command_peekd(arg); }
-	if (strcmp(command_name, "%%peekh") == 0) { command_peekh(arg); }
-	if (strcmp(command_name, "%%inc") == 0) { command_inc(arg); }
-	if (strcmp(command_name, "%%dec") == 0) { command_dec(arg); }
-	if (strcmp(command_name, "%%dump") == 0) { command_dump(arg); }
-	if (strcmp(command_name, "%%dumph") == 0) { command_dump_hex(arg); }
+	if ((strcmp(command_name, "%%help") == 0) || (strcmp(command_name, "%%h") == 0)) { command_help(); }
+	if ((strcmp(command_name, "%%print") == 0) || (strcmp(command_name, "%%p") == 0)) { command_print(arg); }
+	if ((strcmp(command_name, "%%seek") == 0) || (strcmp(command_name, "%%s") == 0)) { command_seek(arg); }
+	if ((strcmp(command_name, "%%peek") == 0) || (strcmp(command_name, "%%pk") == 0)) { command_peek(arg); }
+	if ((strcmp(command_name, "%%peekd") == 0) || (strcmp(command_name, "%%pd") == 0)) { command_peekd(arg); }
+	if ((strcmp(command_name, "%%peekh") == 0) || (strcmp(command_name, "%%ph") == 0)) { command_peekh(arg); }
+	if ((strcmp(command_name, "%%inc") == 0) || (strcmp(command_name, "%%i") == 0)) { command_inc(arg); }
+	if ((strcmp(command_name, "%%dec") == 0) || (strcmp(command_name, "%%d") == 0)) { command_dec(arg); }
+	if ((strcmp(command_name, "%%dump") == 0) || (strcmp(command_name, "%%dd") == 0)) { command_dump(arg); }
+	if ((strcmp(command_name, "%%dumph") == 0) || (strcmp(command_name, "%%dh") == 0)) { command_dump_hex(arg); }
 
 }
 
