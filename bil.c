@@ -1,6 +1,6 @@
 #include "inc/mpc.h"
 
-#include <editline/history.h>
+// #include <editline/history.h>
 #include <editline/readline.h>
 #include <stdio.h>
 #include <stdio.h>
@@ -39,9 +39,9 @@ void eval_symbol(char* a) {
 	if(strcmp(a, ">") == 0) { ip++; }
 	if(strcmp(a, "<") == 0) { ip--; }
 	if(strcmp(a, ".") == 0) { printf("%c", *ip); }
-	if(strcmp(a, ",") == 0) { 
+	if(strcmp(a, ",") == 0) {
 		scanf("%c", &inp);
-		*ip = inp; 
+		*ip = inp;
 		if (*ip == 0 || *ip == 10) {
 			scanf("%c", &inp);
 			*ip = inp;
@@ -64,12 +64,12 @@ void eval_loop(mpc_ast_t* t) {
 					eval_symbol(t->children[i]->children[j]->contents);
 				}
 		}
-		else if (strcmp(t->children[i]->contents, "[") == 0) { 
+		else if (strcmp(t->children[i]->contents, "[") == 0) {
 			if (*ip == 0)
 				break;
 		}
-		else if (strcmp(t->children[i]->contents, "]") == 0) { 
-			i = -1; 
+		else if (strcmp(t->children[i]->contents, "]") == 0) {
+			i = -1;
 		}
 	}
 }
@@ -86,7 +86,7 @@ void command_print(char* index) {
 }
 
 void command_help() {
-	printf("HELPtext goes here\n\n\n\nsadsadas\n\n\n\n");
+	printf("TODO: Help text");
 }
 
 void command_seek(char* index) {
@@ -305,7 +305,7 @@ void eval_command(mpc_ast_t* t) {
 	}
 	else if (t->children_num == 2) {
 		command_name = t->children[0]->contents;
-		arg = t->children[1]->contents;		
+		arg = t->children[1]->contents;
 	}
 	else {
 		printf(STYLE_BOLD ANSI_COLOR_RED "Error: Too many arguments\n" ANSI_COLOR_RESET);
@@ -324,8 +324,8 @@ void eval_command(mpc_ast_t* t) {
 }
 
 void read_bf(mpc_ast_t* t) {
-	if (strstr(t->tag, "symbol")) { 
-		return eval_symbol(t->contents); 
+	if (strstr(t->tag, "symbol")) {
+		return eval_symbol(t->contents);
 	}
 	if (strstr(t->tag, "loop")) {
 		return eval_loop(t);
@@ -334,7 +334,7 @@ void read_bf(mpc_ast_t* t) {
 	if (strstr(t->tag, "command")) {
 		return eval_command(t);
 	}
-	
+
 	for (int i = 0; i < t->children_num; ++i) {
 		if (strcmp(t->children[i]->contents, "[") == 0) { continue; }
 		if (strcmp(t->children[i]->contents, "]") == 0) { continue; }
@@ -430,7 +430,7 @@ int main(int argc, char** argv) {
 	        if (mpc_parse("<stdin>", input, Bf, &r)) {
 	            read_bf(r.output);
 	            mpc_ast_delete(r.output);
-	        } else {    
+	        } else {
 	            mpc_err_print(r.error);
 	            mpc_err_delete(r.error);
 	        }
@@ -448,7 +448,7 @@ int main(int argc, char** argv) {
 				putchar('\n');
 	            print_tape(ip - tape);
 	            mpc_ast_delete(r.output);
-    		} else {    
+    		} else {
 	            mpc_err_print(r.error);
 	            mpc_err_delete(r.error);
 	        }
@@ -456,6 +456,6 @@ int main(int argc, char** argv) {
     }
 
     mpc_cleanup(8, Symbol, Comment, Loop, Number, InvalidCommandArg, CommandName, Command, Expr, Bf);
-    free(ip);
+    // free(ip);
     return 0;
 }
